@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "434174952719",
+    "firebase_url": "https://hackathonmorse.firebaseio.com",
+    "project_id": "hackathonmorse",
+    "storage_bucket": "hackathonmorse.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434174952719:android:5a9bed21434698f4",
+        "android_client_info": {
+          "package_name": "com.doyoon.android.hackathonmorse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "434174952719-47vka2mrai4na94k259ghmiq19jgrn16.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.doyoon.android.hackathonmorse",
+            "certificate_hash": "2b8e82f62d386cbb1bd00a344ff738a058b85145"
+          }
+        },
+        {
+          "client_id": "434174952719-qsks91ho07fk2dh7gdhip4vccnca32mp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwEMBSoKbKSavB9g-XKWqFXgnVtlhMqrA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "434174952719-qsks91ho07fk2dh7gdhip4vccnca32mp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
