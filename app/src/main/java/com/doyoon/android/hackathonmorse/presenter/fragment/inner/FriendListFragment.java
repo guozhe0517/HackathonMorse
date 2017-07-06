@@ -17,6 +17,11 @@ import com.doyoon.android.hackathonmorse.domain.user.FriendKey;
 import com.doyoon.android.hackathonmorse.presenter.fragment.ChatFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.abst.RecyclerFragment;
 import com.doyoon.android.hackathonmorse.util.Const;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +54,27 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
 
     public void onSearchBtn(){
         String searchFriendName = searchView.getQuery().toString();
-        Log.e(TAG, searchFriendName);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Const.FIRE_BASE_USER_ROOT).child(searchFriendName);
+
+        // todo 현재 친구 리스트에 있는지 먼저 점검을 해야 되는데...
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        Log.e(TAG, "search end");
     }
 
     public List<FriendKey> getDataList(){
@@ -116,6 +141,8 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
             }
         };
     }
+
+
 
     @Override
     public int throwFragmentLayoutResId() {

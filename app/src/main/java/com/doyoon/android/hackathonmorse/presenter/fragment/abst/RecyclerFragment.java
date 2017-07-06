@@ -78,10 +78,8 @@ public abstract class RecyclerFragment<T> extends Fragment {
 
     public void notifyDataSetChanged(){
         if (adapter == null) {
-            Log.e("Adapter", "null 이니?");
             return;
         }
-        Log.e("Adapter", "null 아니다?");
         adapter.notifyDataSetChanged();
     }
 
