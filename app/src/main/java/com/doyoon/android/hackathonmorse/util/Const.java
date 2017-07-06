@@ -6,6 +6,8 @@ package com.doyoon.android.hackathonmorse.util;
 
 public class Const {
 
+    public static String CHAT_BUNDLE_KEY = "chatkey";
+
     public static String JSON_EMPTY_ARRAY = "[]";
     public static String EMPTY_CHAT_KEY = "";
 }

@@ -16,6 +16,7 @@ import com.doyoon.android.hackathonmorse.R;
 import com.doyoon.android.hackathonmorse.domain.user.FriendKey;
 import com.doyoon.android.hackathonmorse.presenter.fragment.ChatFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.abst.RecyclerFragment;
+import com.doyoon.android.hackathonmorse.util.Const;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
 public class FriendListFragment extends RecyclerFragment<FriendKey> {
 
     private static final String TAG = FriendListFragment.class.getName();
+    private List<FriendKey> friendKeyList = new ArrayList<>();
 
     public static FriendListFragment newInstance() {
         
@@ -37,8 +39,6 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
         return fragment;
     }
 
-    List<FriendKey> friendKeyList = new ArrayList<>();
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,15 +47,29 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
         return view;
     }
 
+    public void onSearchBtn(){
+        String searchFriendName = searchView.getQuery().toString();
+        Log.e(TAG, searchFriendName);
+    }
+
     public List<FriendKey> getDataList(){
         return this.friendKeyList;
     }
 
+    private void goChatFragment(String existChatRefKey) {
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        ChatFragment chatFragment = ChatFragment.newInstance();
 
+        /* Throw Bundle */
+        Bundle bundle = new Bundle();
+        bundle.putString(Const.CHAT_BUNDLE_KEY, existChatRefKey);
+        chatFragment.setArguments(bundle);
 
-    public void onSearchBtn(){
-        String searchFriendName = searchView.getQuery().toString();
-        Log.e(TAG, searchFriendName);
+        /* begin fragment */
+        transaction.add(R.id.main_fragment_container, chatFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
 
@@ -73,6 +87,7 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
         });
     }
 
+    /* For Recycler Fragment */
     @Override
     public CustomViewHolder throwCustomViewHolder(View view) {
         return new CustomViewHolder(view) {
@@ -100,22 +115,6 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
                 goChatFragment(friendKey.getExistChatRefKey());
             }
         };
-    }
-
-    private void goChatFragment(String existChatRefKey) {
-        FragmentManager manager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        ChatFragment chatFragment = ChatFragment.newInstance();
-
-        /* Throw Bundle */
-        Bundle bundle = new Bundle();
-        bundle.putString("CHATKEY", existChatRefKey);
-        chatFragment.setArguments(bundle);
-
-        /* begin fragment */
-        transaction.add(R.id.main_fragment_container, chatFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
     @Override

@@ -61,7 +61,7 @@ public class ChatFragment extends RecyclerFragment<Chat> {
 
         //todo null check
         Bundle bundle = getArguments();
-        String chatRefKey = bundle.getString("CHATKEY");
+        String chatRefKey = bundle.getString(Const.CHAT_BUNDLE_KEY);
 
         if(Const.EMPTY_CHAT_KEY.equals(chatRefKey)){
             DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference(CHAT_ROOT);
