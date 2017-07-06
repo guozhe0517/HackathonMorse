@@ -13,6 +13,7 @@ import com.doyoon.android.hackathonmorse.R;
 import com.doyoon.android.hackathonmorse.domain.Chat;
 import com.doyoon.android.hackathonmorse.domain.RemoteChatObj;
 import com.doyoon.android.hackathonmorse.presenter.fragment.abst.RecyclerFragment;
+import com.doyoon.android.hackathonmorse.util.Const;
 import com.doyoon.android.hackathonmorse.util.converter.GsonConv;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,7 +37,7 @@ public class ChatFragment extends RecyclerFragment<Chat> {
     private List<Chat> chatList = new ArrayList<>();
 
     public static ChatFragment newInstance() {
-        
+
         Bundle args = new Bundle();
         
         ChatFragment fragment = new ChatFragment();
@@ -57,16 +58,16 @@ public class ChatFragment extends RecyclerFragment<Chat> {
 
         // 문제는 리스너가 계속 달려 있으면 안될거 같은데.... Fragment는 계속해서 new 가 되므로...
 
-        boolean isNewchat = true;
-        String chatRefKey = "";
 
-        if(isNewchat){
-            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference(CHAT_ROOT).child("bookinfolist");
+        //todo null check
+        Bundle bundle = getArguments();
+        String chatRefKey = bundle.getString("CHATKEY");
+
+        if(Const.EMPTY_CHAT_KEY.equals(chatRefKey)){
+            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference(CHAT_ROOT);
             chatRefKey = rootRef.push().getKey();
-        } else {
-             // get Reference String from before fragment....
-            // chatRefKey =
-            // chatList
+            // todo 새로운 채팅일 경우 chatREf에만 추가하는 것이 아니라
+            //jsonChatKeyList와 jsonFriendKeyList에도 추가해줘야 한다...
         }
 
         chatRef = FirebaseDatabase.getInstance().getReference(CHAT_ROOT).child(chatRefKey);
@@ -202,8 +203,7 @@ public class ChatFragment extends RecyclerFragment<Chat> {
         this.addWidgetsListener();
     }
 
-    private void widgetsDependencyInejction(View view) {
-        inputEditText = (TextView) view.findViewById(R.id.chat_fragment_editText_input);
+    private void widgetsDependencyInejction(View view) {inputEditText = (TextView) view.findViewById(R.id.chat_fragment_editText_input);
         btnMorse = (Button) view.findViewById(R.id.chat_fragment_btn_morse);
         btnSend = (Button) view.findViewById(R.id.chat_fragment_btn_send);
     }

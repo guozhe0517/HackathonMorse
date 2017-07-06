@@ -8,6 +8,8 @@ import com.google.gson.Gson;
 
 public class GsonConv {
 
+    // new TypeToken<ArrayList<Chat>>(){}.getType()
+
     public static Gson instance = null;
 
     public static Gson getInstance(){

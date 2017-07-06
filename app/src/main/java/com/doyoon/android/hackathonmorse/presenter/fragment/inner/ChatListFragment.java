@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.doyoon.android.hackathonmorse.R;
+
 /**
  * Created by DOYOON on 7/6/2017.
  */
@@ -25,8 +27,8 @@ public class ChatListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_chat_list, container, false);
 
-
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 }
