@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.doyoon.android.hackathonmorse.R;
-import com.doyoon.android.hackathonmorse.domain.firebase.value.user.Profile;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.UserProfile;
 import com.doyoon.android.hackathonmorse.domain.dao.RemoteDao;
 import com.doyoon.android.hackathonmorse.domain.firebase.value.FriendKey;
 import com.doyoon.android.hackathonmorse.presenter.fragment.ChatFragment;
@@ -64,7 +64,7 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){  // 친구가 있으면 아무것도 하지 않는다.
-                    Profile friend = dataSnapshot.getValue(Profile.class);
+                    UserProfile friend = dataSnapshot.getValue(UserProfile.class);
                     String existChatRefKey = "";
                     FriendKey friendKey = new FriendKey(friend.getUid(), friend.getName(), friend.getImageUrl(), friend.getEmail(), existChatRefKey);
                     RemoteDao.insertFriendKey(friendKey);

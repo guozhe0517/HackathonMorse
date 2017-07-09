@@ -17,7 +17,7 @@ import com.doyoon.android.hackathonmorse.domain.dao.RemoteDao;
 import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseHelper;
 import com.doyoon.android.hackathonmorse.domain.firebase.value.ChatKey;
 import com.doyoon.android.hackathonmorse.domain.firebase.value.FriendKey;
-import com.doyoon.android.hackathonmorse.domain.firebase.value.user.Profile;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.UserProfile;
 import com.doyoon.android.hackathonmorse.presenter.fragment.inner.ChatListFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.inner.FriendListFragment;
 import com.google.firebase.database.DataSnapshot;
@@ -26,9 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
@@ -79,13 +77,17 @@ public class FriendAndChatListFragment extends Fragment {
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 
-        Log.e(TAG, "Load Strat DB Structure : " + DateFormat.getDateTimeInstance().format(new Date()));
         FirebaseHelper.loadDbStructure(getContext());
+
+        /* Dummy Insert Test */
+        UserProfile userProfile = new UserProfile();
+        userProfile.setEmail("miraee05@naver.com" + System.currentTimeMillis());
+        Log.e(TAG, "model dir is " + new FriendKey().getModelDir("doyoon1", "doyoon2", "doyoon3"));
+        FirebaseHelper.Dao.insert(userProfile);
         FirebaseHelper.Dao.insert(new ChatKey());
         FirebaseHelper.Dao.insert(new FriendKey());
-        Log.e(TAG, "Load End DB Structure : " + DateFormat.getDateTimeInstance().format(new Date()));
 
-        /* Firebase Database User Profile */
+        /* Firebase Database User UserProfile */
         /*  다시켜면 RemoteDao.MYUID의 값이 null 이네.... 서비스나 다른곳에 저장을 해둬야 하는구만 */
         String refPath = "users/" + RemoteDao.MYUID + "/signup";
         final DatabaseReference signupRef = FirebaseDatabase.getInstance().getReference(refPath);
@@ -99,9 +101,9 @@ public class FriendAndChatListFragment extends Fragment {
                     // insert signup true
                     signupRef.setValue(true);
 
-                    // insert default profile
-                    Profile profile = new Profile(RemoteDao.MYNAME, RemoteDao.MYUID);
-                    FirebaseHelper.Dao.insert(profile);
+                    // insert default userProfile
+                    UserProfile userProfile = new UserProfile(RemoteDao.MYNAME, RemoteDao.MYUID);
+                    //FirebaseHelper.Dao.insert(userProfile);
                     Log.e(TAG, "사용자를 새로 등록했습니다.");
                 }
             }
@@ -154,7 +156,7 @@ public class FriendAndChatListFragment extends Fragment {
         return view;
     }
 
-    private Profile createDummyUser(){
+    private UserProfile createDummyUser(){
          /* dummy data
         List<FriendKey> friendKeyList = new ArrayList<FriendKey>();
         friendKeyList.add(new FriendKey("김도윤", "test image url", "김도윤@goo.com", "-KoM6cNAbEX4WZJsKTJk"));
@@ -164,8 +166,8 @@ public class FriendAndChatListFragment extends Fragment {
         List<ChatKey> chatKeyList = new ArrayList<ChatKey>();
         String jsonChatKeyList = GsonConv.getInstance().toJson(chatKeyList);
         */
-        Profile profile = new Profile(RemoteDao.MYNAME, RemoteDao.MYUID);
-        return profile;
+        UserProfile userProfile = new UserProfile(RemoteDao.MYNAME, RemoteDao.MYUID);
+        return userProfile;
     }
 
     class CustomPageAdapter extends FragmentStatePagerAdapter {

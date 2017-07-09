@@ -6,7 +6,7 @@ import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseModel;
  * Created by DOYOON on 7/6/2017.
  */
 
-public class ChatKey extends FirebaseModel {
+public class ChatKey extends FirebaseModel{
 
     private String chatRefKey;
     private String imageUrl;
@@ -62,17 +62,12 @@ public class ChatKey extends FirebaseModel {
 
 
     @Override
-    public String getValueKey() {
+    public String getModelKey() {
         return null;
     }
 
     @Override
-    public String[] getReferenceKeys() {
-        return new String[0];
-    }
-
-    @Override
-    public String getDbPath() {
+    public String getModelDir(String... params) {
         return null;
     }
 }

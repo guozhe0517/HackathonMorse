@@ -46,17 +46,12 @@ public class Chat extends FirebaseModel{
     }
 
     @Override
-    public String getValueKey() {
+    public String getModelKey() {
         return null;
     }
 
     @Override
-    public String[] getReferenceKeys() {
-        return new String[0];
-    }
-
-    @Override
-    public String getDbPath() {
+    public String getModelDir(String... params) {
         return null;
     }
 }

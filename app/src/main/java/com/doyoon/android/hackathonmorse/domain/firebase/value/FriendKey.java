@@ -1,6 +1,14 @@
 package com.doyoon.android.hackathonmorse.domain.firebase.value;
 
+import android.util.Log;
+
+import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseHelper;
 import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseModel;
+
+import java.util.HashMap;
+import java.util.List;
+
+import static com.doyoon.android.hackathonmorse.domain.firebase.FirebaseHelper.dbStructureMap;
 
 /**
  * Created by DOYOON on 7/6/2017.
@@ -79,17 +87,32 @@ public class FriendKey extends FirebaseModel {
     }
 
     @Override
-    public String getValueKey() {
+    public String getModelKey() {
         return null;
     }
 
     @Override
-    public String[] getReferenceKeys() {
-        return new String[0];
-    }
+    public String getModelDir(String... params) {
+        HashMap<String, String> modelAttributeMap = dbStructureMap.get(getClass().getSimpleName().toLowerCase());
+        String modelDir = modelAttributeMap.get("modelDir");
 
-    @Override
-    public String getDbPath() {
-        return null;
+        List<String> paramList = FirebaseHelper.findParams(modelDir);
+
+        if (params.length < paramList.size()) {
+            Log.e("FirebaseModel", "Model Dir : " + modelDir);
+            throw new NullPointerException("Not enough params, if you want to access this Model, you need more param(key)..");
+        }
+
+        for(int i =0; i <paramList.size(); i ++) {
+            modelDir = modelDir.replace(paramList.get(i), params[i]);
+        }
+        /*
+        for(int i=0; i < needParamNum; i++) {
+            // Log.e( null -> need this value attribute refer="";
+            //replace (params[i]) ;
+        }
+        */
+
+        return modelDir;
     }
 }

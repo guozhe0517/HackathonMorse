@@ -1,4 +1,4 @@
-package com.doyoon.android.hackathonmorse.domain.firebase.value.user;
+package com.doyoon.android.hackathonmorse.domain.firebase.value;
 
 import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseModel;
 
@@ -6,42 +6,18 @@ import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseModel;
  * Created by DOYOON on 7/6/2017.
  */
 
-public class Profile extends FirebaseModel {
+public class UserProfile extends FirebaseModel {
 
     private String name;
     private String uid;
     private String imageUrl;
     private String email;
 
-    public Profile() {
+    public UserProfile() {
 
     }
 
-    @Override
-    public String getValueKey() {
-        return null;
-    }
-
-    @Override
-    public String[] getReferenceKeys() {
-        String[] referenceKeys = new String[1];
-        referenceKeys[0] = this.uid;
-        return referenceKeys;
-    }
-
-    @Override
-    public String getDbPath() {
-        String modelName = getClass().getSimpleName();
-
-        // root/users/?/
-        /* Build Reference Key */
-        String[] referenceKeys = new String[1];
-        referenceKeys[0] = this.uid;
-        // buildDbPath(modelName, referenceKeys);
-        return null;
-    }
-
-    public Profile(String name, String uid) {
+    public UserProfile(String name, String uid) {
         this.name = name;
         this.uid = uid;
     }
@@ -79,4 +55,13 @@ public class Profile extends FirebaseModel {
     }
 
 
+    @Override
+    public String getModelKey() {
+        return null;
+    }
+
+    @Override
+    public String getModelDir(String... params) {
+        return null;
+    }
 }
