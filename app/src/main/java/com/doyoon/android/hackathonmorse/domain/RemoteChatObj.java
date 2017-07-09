@@ -6,6 +6,7 @@ package com.doyoon.android.hackathonmorse.domain;
 
 public class RemoteChatObj {
 
+
     private String lastChatDate;
     private String chats;
 

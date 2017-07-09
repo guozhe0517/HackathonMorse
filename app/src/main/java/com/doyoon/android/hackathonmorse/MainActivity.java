@@ -7,11 +7,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import com.doyoon.android.hackathonmorse.domain.dao.RemoteDao;
 import com.doyoon.android.hackathonmorse.presenter.fragment.FriendAndChatListFragment;
 
 public class MainActivity extends FragmentActivity {
 
-    public static String UID = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,9 +22,8 @@ public class MainActivity extends FragmentActivity {
         /* Get UID */
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            MainActivity.UID = bundle.getString("UID");
-        } else {    /* This code is for dummy, remove this code */
-            MainActivity.UID = "asfrom30";
+            RemoteDao.MYUID = bundle.getString("UID");
+            RemoteDao.MYNAME = bundle.getString("name");
         }
 
         /* Search in DB, unless finish */

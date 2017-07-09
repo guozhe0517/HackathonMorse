@@ -11,9 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.doyoon.android.hackathonmorse.R;
-import com.doyoon.android.hackathonmorse.domain.user.FriendKey;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.user.Profile;
+import com.doyoon.android.hackathonmorse.domain.dao.RemoteDao;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.FriendKey;
 import com.doyoon.android.hackathonmorse.presenter.fragment.ChatFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.abst.RecyclerFragment;
 import com.doyoon.android.hackathonmorse.util.Const;
@@ -54,17 +57,19 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
 
     public void onSearchBtn(){
         String searchFriendName = searchView.getQuery().toString();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Const.FIRE_BASE_USER_ROOT).child(searchFriendName);
+        DatabaseReference friendProfileRef = FirebaseDatabase.getInstance().getReference(Const.FIRE_BASE_USER_ROOT).child(searchFriendName).child(Const.USER_PROFILE_REF);
 
-        // todo 현재 친구 리스트에 있는지 먼저 점검을 해야 되는데...
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        friendProfileRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-
+                if(dataSnapshot.exists()){  // 친구가 있으면 아무것도 하지 않는다.
+                    Profile friend = dataSnapshot.getValue(Profile.class);
+                    String existChatRefKey = "";
+                    FriendKey friendKey = new FriendKey(friend.getUid(), friend.getName(), friend.getImageUrl(), friend.getEmail(), existChatRefKey);
+                    RemoteDao.insertFriendKey(friendKey);
                 } else {
-
+                    Toast.makeText(getActivity(), "검색된 사용자가 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -81,7 +86,7 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
         return this.friendKeyList;
     }
 
-    private void goChatFragment(String existChatRefKey) {
+    private void goChatFragment(String friendUid, String existChatRefKey) {
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         ChatFragment chatFragment = ChatFragment.newInstance();
@@ -89,6 +94,7 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
         /* Throw Bundle */
         Bundle bundle = new Bundle();
         bundle.putString(Const.CHAT_BUNDLE_KEY, existChatRefKey);
+        bundle.putString(Const.FRIEND_UID_BUNDLE_KEY, friendUid);
         chatFragment.setArguments(bundle);
 
         /* begin fragment */
@@ -137,7 +143,7 @@ public class FriendListFragment extends RecyclerFragment<FriendKey> {
             @Override
             public void onClick(View v) {
                 FriendKey friendKey = super.getT();
-                goChatFragment(friendKey.getExistChatRefKey());
+                goChatFragment(friendKey.uid, friendKey.getExistChatRefKey());
             }
         };
     }

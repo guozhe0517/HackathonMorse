@@ -12,26 +12,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.doyoon.android.hackathonmorse.MainActivity;
 import com.doyoon.android.hackathonmorse.R;
-import com.doyoon.android.hackathonmorse.domain.User;
-import com.doyoon.android.hackathonmorse.domain.user.ChatKey;
-import com.doyoon.android.hackathonmorse.domain.user.FriendKey;
+import com.doyoon.android.hackathonmorse.domain.dao.RemoteDao;
+import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseHelper;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.ChatKey;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.FriendKey;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.user.Profile;
 import com.doyoon.android.hackathonmorse.presenter.fragment.inner.ChatListFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.inner.FriendListFragment;
-import com.doyoon.android.hackathonmorse.util.Const;
-import com.doyoon.android.hackathonmorse.util.converter.GsonConv;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.reflect.TypeToken;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import static com.google.android.gms.internal.zzs.TAG;
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by DOYOON on 7/6/2017.
@@ -39,7 +39,6 @@ import static com.google.android.gms.internal.zzs.TAG;
 
 public class FriendAndChatListFragment extends Fragment {
 
-    private String USER_ROOT = "user";
     FriendListFragment friendListFragment;
     ChatListFragment chatListFragment;
 
@@ -72,7 +71,6 @@ public class FriendAndChatListFragment extends Fragment {
         chatListFragment = ChatListFragment.newInstance();
         fragmentList.add(chatListFragment);
 
-
         CustomPageAdapter customPageAdapter = new CustomPageAdapter(getFragmentManager(), fragmentList);
 
         viewPager.setAdapter(customPageAdapter);
@@ -81,49 +79,49 @@ public class FriendAndChatListFragment extends Fragment {
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 
+        Log.e(TAG, "Load Strat DB Structure : " + DateFormat.getDateTimeInstance().format(new Date()));
+        FirebaseHelper.loadDbStructure(getContext());
+        FirebaseHelper.Dao.insert(new ChatKey());
+        FirebaseHelper.Dao.insert(new FriendKey());
+        Log.e(TAG, "Load End DB Structure : " + DateFormat.getDateTimeInstance().format(new Date()));
 
-        /* Firebase Database */
-        final DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(USER_ROOT).child(MainActivity.UID + "9");
+        /* Firebase Database User Profile */
+        /*  다시켜면 RemoteDao.MYUID의 값이 null 이네.... 서비스나 다른곳에 저장을 해둬야 하는구만 */
+        String refPath = "users/" + RemoteDao.MYUID + "/signup";
+        final DatabaseReference signupRef = FirebaseDatabase.getInstance().getReference(refPath);
+        signupRef.addValueEventListener(new ValueEventListener() {
 
-        myRef.addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = null;
-
                 if (!dataSnapshot.exists()) {   // 사용자가 없으면 새 사용자를 등록한다.
 
-                    // user = createDummyUser();
-                    user = new User("[]", "[]");
-                    myRef.setValue(user);
+                    // insert signup true
+                    signupRef.setValue(true);
 
+                    // insert default profile
+                    Profile profile = new Profile(RemoteDao.MYNAME, RemoteDao.MYUID);
+                    FirebaseHelper.Dao.insert(profile);
                     Log.e(TAG, "사용자를 새로 등록했습니다.");
-                } else {
-                    // 사용자를 새로 등록할때는..위 코드에서 사용자를 등록하기 전에.... 없던 키를 가져와버리네...
-                    user = dataSnapshot.getValue(User.class);
                 }
+            }
 
-                if (user == null) {
-                    Log.e(TAG, "User가 null 입니다.");
-                }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
 
-                // todo 여긴 상황이 더심각하네... 변경점이 하나만 있어도 계속 갱신하게 되네....
-                if (!Const.JSON_EMPTY_ARRAY.equals(user.getJsonFriendKeyList())) {
-                    List<FriendKey> friendKeyList = GsonConv.getInstance().fromJson(user.getJsonFriendKeyList(), new TypeToken<ArrayList<FriendKey>>(){}.getType());
-                    friendListFragment.getDataList().clear();
-                    for (FriendKey friendKey : friendKeyList) {
-                        friendListFragment.getDataList().add(friendKey);
-                    }
-                    friendListFragment.notifyDataSetChanged();
+        /* Fire Base Friend Key List Listener */
+        /*
+        DatabaseReference friendKeyRef = FirebaseDatabase.getInstance().getReference(Const.FIRE_BASE_USER_ROOT).child(RemoteDao.MYUID).child(Const.FRIEND_KEY_REF);
+        friendKeyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                friendListFragment.getDataList().clear();
+                for (DataSnapshot item : dataSnapshot.getChildren()) {
+                    FriendKey friendKey = item.getValue(FriendKey.class);
+                    friendListFragment.getDataList().add(friendKey);
                 }
-
-                if (!Const.JSON_EMPTY_ARRAY.equals(user.getJsonChatKeyList())) {
-                    List<ChatKey> chatKeyList = GsonConv.getInstance().fromJson(user.getJsonChatKeyList(), new TypeToken<ArrayList<ChatKey>>(){}.getType());
-                    chatListFragment.getDataList().clear();
-                    for (ChatKey chatKey : chatKeyList) {
-                        chatListFragment.getDataList().add(chatKey);
-                    }
-                    chatListFragment.notifyDataSetChanged();
-                }
+                friendListFragment.notifyDataSetChanged();
             }
 
             @Override
@@ -131,12 +129,33 @@ public class FriendAndChatListFragment extends Fragment {
 
             }
         });
+        */
+        /* Fire Base Chat Key List Listener */
+        /*
+        DatabaseReference chatKeyRef = FirebaseDatabase.getInstance().getReference(Const.FIRE_BASE_USER_ROOT).child(RemoteDao.MYUID).child(Const.CHAT_KEY_REF);
+        chatKeyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                chatListFragment.getDataList().clear();
+                for (DataSnapshot item : dataSnapshot.getChildren()) {
+                    ChatKey friendKey = item.getValue(ChatKey.class);
+                    chatListFragment.getDataList().add(friendKey);
+                }
+                chatListFragment.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        */
 
         return view;
     }
 
-    private User createDummyUser(){
-         /* dummy data */
+    private Profile createDummyUser(){
+         /* dummy data
         List<FriendKey> friendKeyList = new ArrayList<FriendKey>();
         friendKeyList.add(new FriendKey("김도윤", "test image url", "김도윤@goo.com", "-KoM6cNAbEX4WZJsKTJk"));
         friendKeyList.add(new FriendKey("곽철", "test image url", "곽철@goo.com", "-KoMC1vxvNMAAjSF2s2C"));
@@ -144,12 +163,9 @@ public class FriendAndChatListFragment extends Fragment {
 
         List<ChatKey> chatKeyList = new ArrayList<ChatKey>();
         String jsonChatKeyList = GsonConv.getInstance().toJson(chatKeyList);
-
-        User user = new User();
-        user.setJsonFriendKeyList(jsonFriendKeyList);
-        user.setJsonChatKeyList(jsonChatKeyList);
-
-        return user;
+        */
+        Profile profile = new Profile(RemoteDao.MYNAME, RemoteDao.MYUID);
+        return profile;
     }
 
     class CustomPageAdapter extends FragmentStatePagerAdapter {

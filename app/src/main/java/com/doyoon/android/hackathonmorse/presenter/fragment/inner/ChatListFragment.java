@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.doyoon.android.hackathonmorse.R;
-import com.doyoon.android.hackathonmorse.domain.user.ChatKey;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.ChatKey;
 import com.doyoon.android.hackathonmorse.presenter.fragment.ChatFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.abst.RecyclerFragment;
 import com.doyoon.android.hackathonmorse.util.Const;
