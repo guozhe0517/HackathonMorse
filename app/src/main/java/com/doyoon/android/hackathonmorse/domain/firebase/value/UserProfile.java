@@ -8,6 +8,7 @@ import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseModel;
 
 public class UserProfile extends FirebaseModel {
 
+    private String key;
     private String name;
     private String uid;
     private String imageUrl;
@@ -54,14 +55,23 @@ public class UserProfile extends FirebaseModel {
         this.email = email;
     }
 
+    @Override
+    public String toString() {
+        return "UserProfile{" +
+                "name='" + name + '\'' +
+                ", uid='" + uid + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 
     @Override
-    public String getModelKey() {
+    public String getKey() {
         return null;
     }
 
     @Override
-    public String getModelDir(String... params) {
-        return null;
+    public void setKey(String key) {
+
     }
 }

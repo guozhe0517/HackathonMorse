@@ -7,13 +7,15 @@ import com.doyoon.android.hackathonmorse.domain.firebase.FirebaseModel;
  */
 
 public class ChatProfile extends FirebaseModel {
+
     @Override
-    public String getModelKey() {
+    public String getKey() {
         return null;
     }
 
     @Override
-    public String getModelDir(String... params) {
-        return null;
+    public void setKey(String key) {
+
     }
+
 }

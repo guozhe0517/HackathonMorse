@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,12 +25,9 @@ public class FirebaseHelper {
 
     public static final String TAG = FirebaseHelper.class.getSimpleName();
 
-    // Parsing.. when loading start
-    //public static HashMap<String, Class> modelPropertyMap;
     public static HashMap<String, HashMap<String, String>> dbStructureMap;
 
-    private static String nodeStack2Path(Stack<String> nodeStack) {
-
+    private static String stackToPath(Stack<String> nodeStack){
         String[] nodes = new String[nodeStack.size()];
         nodeStack.toArray(nodes);
 
@@ -40,18 +38,26 @@ public class FirebaseHelper {
         return path;
     }
 
+    private static String stackToPathWithoutKey(Stack<String> nodeStack) {
+        String[] nodes = new String[nodeStack.size()];
+        nodeStack.toArray(nodes);
+
+        String path = "";
+        for(int i = 0; i < nodes.length - 1; i++) {
+            path += nodes[i] + "/";
+        }
+        return path;
+    }
+
     private static void buildParentNodeStack(Stack<String> parentNodeStack, String currentNodeName, int preDepth, int currentDepth) {
-        if(preDepth < currentDepth){
-            parentNodeStack.add(currentNodeName);
-        } else if (preDepth > currentDepth) {
-            for(int i=0; i < preDepth - currentDepth; i++) {
+        if (preDepth > currentDepth) {       // depth가 낮아질때는...
+            for(int i=0; i < preDepth - currentDepth + 1; i++) {
                 parentNodeStack.pop();
             }
         } else if (preDepth == currentDepth) {
             parentNodeStack.pop();
-            parentNodeStack.add(currentNodeName);
         }
-
+        parentNodeStack.add(currentNodeName);
     }
 
     private static void putAllAttiributeToDbStructureMap(String nodeName, XmlPullParser parser, String dbpath){
@@ -81,11 +87,10 @@ public class FirebaseHelper {
     public static void loadDbStructure(Context context){
 
         int preDepth = 0;
-        Stack<String> parentNodeStack = new Stack<>();
+        Stack<String> modelPathStack = new Stack<>();
         dbStructureMap = new HashMap<>();
         try {
             InputStream inputStream = context.getAssets().open("database_structure.xml");
-            // InputStream inputStream = context.getAssets().open("temperature.xml");
             XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
             XmlPullParser myParser = xmlFactoryObject.newPullParser();
             myParser.setInput(inputStream, null);
@@ -101,17 +106,15 @@ public class FirebaseHelper {
                         int currentDepth = myParser.getDepth();
                         String currentType = myParser.getAttributeValue(null, "type");
 
-                         /* Analyze attribute */
                         // todo // FIXME: 7/9/2017 hard wiring
-                        if ( "value".equals(currentType)) {
-                            putAllAttiributeToDbStructureMap(currentTagName, myParser, nodeStack2Path(parentNodeStack));
-                        } else if("reference-key".equals(currentType)){
-                            buildParentNodeStack(parentNodeStack, currentTagName, preDepth, currentDepth);
-                            preDepth = currentDepth;
-                        } else if("primary-key".equals(currentType)){
-                            buildParentNodeStack(parentNodeStack, "{" + currentTagName + "}", preDepth, currentDepth);
-                            preDepth = currentDepth;
+                        if("primary-key".equals(currentType)){
+                            buildParentNodeStack(modelPathStack, "{" + currentTagName + "}", preDepth, currentDepth);
+                        } else {
+                            buildParentNodeStack(modelPathStack, currentTagName, preDepth, currentDepth);
                         }
+                        preDepth = currentDepth;
+                        putAllAttiributeToDbStructureMap(currentTagName, myParser, stackToPathWithoutKey(modelPathStack));
+                        // Log.e(currentTagName, "TAG NAME = [" + currentTagName + "], Pre is [" + preDepth +  "], Depth is [" + currentDepth + "], Path is [" + stackToPathWithoutKey(modelPathStack) + "]");
                         break;
                     case XmlPullParser.END_TAG:
                         break;
@@ -123,50 +126,71 @@ public class FirebaseHelper {
         }
     }
 
-    // todo 고민... 용어 통일 node, tag.. ref...
-    public static class Dao {
-        /* Return DB full Path */
-        public static <T extends FirebaseModel> String insert(T t, String modelDir) {
-            if (dbStructureMap == null) {
-                throw new RuntimeException("DB Structure Map is null, Db structure is not executed yet.");
+    public static String getModelDir(String modelName, String... accessKeys) {
+
+        HashMap<String, String> modelAttributeMap = getModelAttribute(modelName);
+        String modelDir = modelAttributeMap.get("modelDir");
+
+        List<String> needParamList = FirebaseHelper.findNeedParams(modelDir);
+        if (accessKeys.length < needParamList.size()) {
+            Log.e(TAG, "Model Dir : " + modelDir);
+            // Log.e( null -> need this value attribute refer="";
+            throw new NullPointerException("Not enough params, if you want to access this Model, you need more param(key)..");
+        }
+
+        for(int i =0; i <needParamList.size(); i ++) {
+            modelDir = modelDir.replace(needParamList.get(i), accessKeys[i]);
+        }
+
+        return modelDir;
+    }
+
+    public static void printAllModelKey(){
+        for (Map.Entry<String, HashMap<String, String>> entry : dbStructureMap.entrySet()) {
+            Log.e("Model Name is ",  entry.getKey());
+            HashMap<String, String> hashMap = entry.getValue();
+            for (Map.Entry<String, String> entry1 : hashMap.entrySet()) {
+                Log.e("key/value ", "        " + entry1.getKey() + " / " + entry1.getValue());
             }
-
-            if(modelDir == null) {
-
-            }
-
-            /* Get Info(isBundle, isAutoGenerateMdoelKey, model attribute map) */
-            String modelName = t.getClass().getSimpleName().toLowerCase();
-            HashMap<String, String> modelAttributeMap = dbStructureMap.get(modelName);
-            boolean isBundle = Boolean.parseBoolean(modelAttributeMap.get("isBundle")); // // FIXME: 7/9/2017 hird wiring
-            boolean isAutoGenerateModelKey = Boolean.parseBoolean(modelAttributeMap.get("isAutoGenerateModelKey"));
-            // String modelDir = modelAttributeMap.get("modelDir");
-
-            /* Define Model Key */
-            String modelKey = "";
-            if(!isBundle){
-                modelKey = modelName;
-            } else {
-                if(isAutoGenerateModelKey){
-                    modelKey = FirebaseDatabase.getInstance().getReference(modelDir).push().getKey();
-                } else {
-                    if (t.getModelKey() == null) {
-                        throw new NullPointerException( "[" + t.getClass().getSimpleName() + "] Model key is null, If isAutoGenerateKey attribute is false, you have to define your own model key.");
-                    }
-                    modelKey = t.getModelKey();
-                }
-            }
-
-            /* Build db path... */
-            String modelPath = modelDir + modelKey;
-            FirebaseDatabase.getInstance().getReference(modelPath).setValue(t);
-            printInsertLog(modelName, isBundle, isAutoGenerateModelKey, modelDir, modelPath);
-
-            return modelPath;
         }
     }
 
-    public static List<String> findParams(String modelDir){
+    public static <T extends FirebaseModel> String toMakeModelKey(String modelName, T t, String... accessKeys) {
+
+        HashMap<String, String> modelAttributeMap = getModelAttribute(modelName);
+
+        boolean isBundle = Boolean.parseBoolean(modelAttributeMap.get("isBundle")); // // FIXME: 7/9/2017 hird wiring
+        boolean isAutoGenerateModelKey = Boolean.parseBoolean(modelAttributeMap.get("isAutoGenerateModelKey"));
+
+
+        if(!isBundle){
+            return modelName;
+        }
+
+        String modelKey = "";
+
+        if(isAutoGenerateModelKey){
+            String modelDir = getModelDir(modelName, accessKeys);
+            modelKey = FirebaseDatabase.getInstance().getReference(modelDir).push().getKey();
+        } else {
+            if (t.getKey() == null) {
+                throw new NullPointerException( "[" + t.getClass().getSimpleName() + "] Model key is null, If isAutoGenerateKey attribute is false, you have to define your own model key.");
+            }
+            modelKey = t.getKey();
+        }
+
+        return modelKey;
+    }
+    public static String getModelName(Object obj){
+        return obj.getClass().getSimpleName().toLowerCase();
+    }
+
+    public static HashMap<String, String> getModelAttribute(String modelName){
+        HashMap<String, String> modelAttributeMap = dbStructureMap.get(modelName);
+        return modelAttributeMap;
+    }
+
+    private static List<String> findNeedParams(String modelDir){
         String pattern = "(\\{\\w+\\})";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(modelDir);
@@ -178,7 +202,7 @@ public class FirebaseHelper {
     }
 
     private static void printInsertLog(String modelName, boolean isBundle, boolean isAutoGenerateModelKey, String modelDir, String modelPath){
-        Log.e(TAG, "                             ");
+        Log.e(TAG, "==========================Fire Base Helper =======================");
         Log.e(TAG, "model name = [" + modelName + "], is bundle = [" + isBundle + "], isAutoGenerateKey = [" + isAutoGenerateModelKey + "]");
         Log.e(TAG, "model directory = " + modelDir);
         Log.e(TAG, "model path = " + modelPath);

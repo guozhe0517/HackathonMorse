@@ -6,7 +6,6 @@ package com.doyoon.android.hackathonmorse.domain.firebase;
 
 public abstract class FirebaseModel {
 
-    public abstract String getModelKey();
-    public abstract String getModelDir(String... params);
-
+    public abstract String getKey();
+    public abstract void setKey(String key);
 }

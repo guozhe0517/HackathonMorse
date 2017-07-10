@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<root>
-    <users type="reference-key">
-        <user type="primary-key" isBundle="true" isAutoGenerateModelKey="false" refer="user email address">
-            <signup type="value-primitive" var="boolean"/>                                                  <!-- value 인데 false/false인 경우 xml title을 그대로 reference-key로 사용한다. -->
-            <userprofile type="value" isBundle="false" isAutoGenerateModelKey="false"/>
-            <chatkeys type="reference-key">
-                <chatkey type="value" isBundle="true" isAutoGenerateModelKey="true" refer="" />
-            </chatkeys>
-            <friendkeys type="reference-key">
-                <friendkey type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
-            </friendkeys>
-        </user>
-    </users>
-    <chatrooms type="reference-key">
-        <chatroom type="primary-key" isBundle="true" isAutoGenerateModelKey="true">
-            <chatprofile type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
-            <chats>
-                <chat type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
-            </chats>
-        </chatroom>
-    </chatrooms>
-</root>
+<users type="reference-key">
+    <user type="primary-key" isBundle="true" isAutoGenerateModelKey="false" refer="user email address">
+        <signup type="value-primitive" var="boolean"/>                                                  <!-- value 인데 false/false인 경우 xml title을 그대로 reference-key로 사용한다. -->
+        <userprofile type="value" isBundle="false" isAutoGenerateModelKey="false"/>
+        <userchatrooms type="reference-key">
+            <userchatroom type="value" isBundle="true" isAutoGenerateModelKey="false" refer="" />
+        </userchatrooms>
+        <friends type="reference-key">
+            <friend type="value" isBundle="true" isAutoGenerateModelKey="false" refer=""/>
+        </friends>
+    </user>
+</users>
+<chatrooms type="reference-key">
+    <userChatroom type="primary-key" isBundle="true" isAutoGenerateModelKey="true">
+        <chatprofile type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
+        <chats>
+            <chat type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
+        </chats>
+    </userChatroom>
+</chatrooms>

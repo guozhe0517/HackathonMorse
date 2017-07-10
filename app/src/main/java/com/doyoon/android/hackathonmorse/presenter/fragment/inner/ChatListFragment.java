@@ -2,7 +2,6 @@ package com.doyoon.android.hackathonmorse.presenter.fragment.inner;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.doyoon.android.hackathonmorse.R;
-import com.doyoon.android.hackathonmorse.domain.firebase.value.ChatKey;
+import com.doyoon.android.hackathonmorse.domain.firebase.value.UserChatroom;
 import com.doyoon.android.hackathonmorse.presenter.fragment.ChatFragment;
 import com.doyoon.android.hackathonmorse.presenter.fragment.abst.RecyclerFragment;
 import com.doyoon.android.hackathonmorse.util.Const;
@@ -23,10 +22,10 @@ import java.util.List;
  * Created by DOYOON on 7/6/2017.
  */
 
-public class ChatListFragment extends RecyclerFragment<ChatKey> {
+public class ChatListFragment extends RecyclerFragment<UserChatroom> {
 
-    private static final String TAG = ChatListFragment.class.getName();
-    private List<ChatKey> chatKeyList = new ArrayList<>();
+    private static final String TAG = ChatListFragment.class.getSimpleName();
+    private List<UserChatroom> userChatroomList = new ArrayList<>();
 
     public static ChatListFragment newInstance() {
 
@@ -40,26 +39,26 @@ public class ChatListFragment extends RecyclerFragment<ChatKey> {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chat_list, container, false);
-
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         return view;
     }
 
-    public List<ChatKey> getDataList(){
-        return this.chatKeyList;
+    public List<UserChatroom> getDataList(){
+        return this.userChatroomList;
     }
 
-    private void goChatFragment(String existChatRefKey) {
-        FragmentManager manager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        ChatFragment chatFragment = ChatFragment.newInstance();
+    private void goChatFragment(UserChatroom userChatroom) {
 
-        /* Throw Bundle */
+        /* Prepare Chat Fragment and Bundle */
+        ChatFragment chatFragment = ChatFragment.newInstance();
         Bundle bundle = new Bundle();
-        bundle.putString(Const.CHAT_BUNDLE_KEY, existChatRefKey);
+        bundle.putString(Const.CHAT_KEY_IN_BUNDLE, userChatroom.getKey());
+        bundle.putString(Const.FRIEND_KEY_IN_BUNDLE, userChatroom.getFrinedKey());
+        //bundle.putString(Const.FRIEND_KEY_IN_BUNDLE, friendUid);
         chatFragment.setArguments(bundle);
 
         /* begin fragment */
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.main_fragment_container, chatFragment);
         transaction.addToBackStack(null);
         transaction.commit();
@@ -74,23 +73,26 @@ public class ChatListFragment extends RecyclerFragment<ChatKey> {
             private TextView textViewDate;
 
             @Override
-            public void dependencyInjection(View itemView, ChatKey chatKey) {
+            public void dependencyInjection(View itemView, UserChatroom userChatroom) {
                 imageView = (ImageView) itemView.findViewById(R.id.item_chatlist_image);
                 textViewTitle = (TextView) itemView.findViewById(R.id.item_chatlist_title);
                 textViewDate = (TextView) itemView.findViewById(R.id.item_chatlist_current_time);
             }
 
             @Override
-            public void updateRecyclerItemView(View view, ChatKey chatKey) {
+            public void updateRecyclerItemView(View view, UserChatroom userChatroom) {
                 // imageView.setImageResource();
-                textViewTitle.setText(chatKey.getFriendName());
-                textViewTitle.setText(chatKey.getCurrentChatTime());
+                //textViewTitle.setText(userChatroom.getFriendName());
+                //textViewTitle.setText(userChatroom.getCurrentChatTime());
+
+                /* temp */
+                textViewTitle.setText(userChatroom.getKey());
             }
 
             @Override
             public void onClick(View v) {
-                ChatKey chatKey = getT();
-                goChatFragment(chatKey.getChatRefKey());
+                UserChatroom userChatroom = getT();
+                goChatFragment(userChatroom);
             }
         };
     }
@@ -106,8 +108,8 @@ public class ChatListFragment extends RecyclerFragment<ChatKey> {
     }
 
     @Override
-    public List<ChatKey> throwDataList() {
-        return chatKeyList;
+    public List<UserChatroom> throwDataList() {
+        return userChatroomList;
     }
 
     @Override
