@@ -12,10 +12,10 @@
     </user>
 </users>
 <chatrooms type="reference-key">
-    <userChatroom type="primary-key" isBundle="true" isAutoGenerateModelKey="true">
+    <chatroom type="primary-key" isBundle="true" isAutoGenerateModelKey="true">
         <chatprofile type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
         <chats>
             <chat type="value" isBundle="true" isAutoGenerateModelKey="true" refer=""/>
         </chats>
-    </userChatroom>
+    </chatroom>
 </chatrooms>

@@ -62,7 +62,7 @@ public class ChatFragment extends RecyclerFragment<Chat> {
         // friendName = bundle.getString(Const.FRIEND_NAME_BUNDLE_KEY);
 
         if (this.chatroomKey != null) {
-            addChatListener(chatroomKey);
+            addChatroomListener(chatroomKey);
         }
         return view;
     }
@@ -80,10 +80,11 @@ public class ChatFragment extends RecyclerFragment<Chat> {
 
         if (chatroomKey == null) {  // 새채팅을 시작합니다.
             Log.e(TAG, "새 채팅을 시작합니다.");
-            String modelDir = getModelDir("userChatroom");
+            /* Create Random Key */
+            String modelDir = getModelDir("chatroom");
             String chatroomKey = FirebaseDatabase.getInstance().getReference(modelDir).push().getKey();
             this.chatroomKey = chatroomKey;
-            addChatListener(chatroomKey);
+            addChatroomListener(chatroomKey);
 
             /* User chat room 추가 */
             UserChatroom userChatroom = new UserChatroom();
@@ -95,8 +96,9 @@ public class ChatFragment extends RecyclerFragment<Chat> {
             FirebaseDatabase.getInstance().getReference(friendModelDir + this.friendKey).child("existChatKey").setValue(this.chatroomKey);
 
             /* 친구꺼에 채팅방 추가... */
-
-
+            if (this.friendKey != null) {
+                FirebaseDao.insert(userChatroom, this.friendKey);
+            }
         }
         Chat chat = new Chat(CurrentUser.getUid(), currentMsg);
         FirebaseDao.insert(chat, this.chatroomKey);
@@ -106,7 +108,7 @@ public class ChatFragment extends RecyclerFragment<Chat> {
 
     }
 
-    private void addChatListener(String chatroomKey){
+    private void addChatroomListener(String chatroomKey){
         String modelDir = FirebaseHelper.getModelDir("chat", chatroomKey);
         FirebaseDatabase.getInstance().getReference(modelDir).addValueEventListener(new ValueEventListener() {
             @Override

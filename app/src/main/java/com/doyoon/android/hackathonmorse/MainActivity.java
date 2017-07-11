@@ -36,7 +36,7 @@ public class MainActivity extends FragmentActivity {
             uid = bundle.getString("email");
         } else { // remove this code
             //uid = "miraee05@naver.com" + System.currentTimeMillis();
-            uid = "d";
+            uid = "a";
         }
 
         CurrentUser.setUid(ConvString.comma2string(uid));
